@@ -1,3 +1,4 @@
+
 # Copied and adapted from: https://github.com/hao-ai-lab/FastVideo & https://github.com/sgl-project/sglang
 
 # TODO: for temporary usage, expecting a refactor
@@ -519,7 +520,8 @@ def _layer_norm_fwd(
         out = torch.empty_like(x, dtype=x.dtype if out_dtype is None else out_dtype)
     if residual is not None:
         residual_dtype = residual.dtype
-    if residual_out is None and (residual is not None or (residual_dtype is not None and residual_dtype != x.dtype) or dropout_p > 0.0 or rowscale is not None or x1 is not None):
+    if residual_out is None and (residual is not None or (residual_dtype is not None and residual_dtype != x.dtype) or dropout_p > 0.0 or rowscale is not None or x1 is not N
+one):
         residual_out = torch.empty_like(x, dtype=residual_dtype if residual_dtype is not None else x.dtype)
     else:
         residual_out = None
