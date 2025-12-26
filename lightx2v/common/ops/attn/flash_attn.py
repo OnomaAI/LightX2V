@@ -11,7 +11,10 @@ try:
     from flash_attn_interface import flash_attn_varlen_func as flash_attn_varlen_func_v3
 except ImportError:
     logger.info("flash_attn_varlen_func_v3 not found, please install flash_attn3 first")
-    flash_attn_varlen_func_v3 = None
+    #flash_attn_varlen_func_v3 = None
+    from flash_attn import flash_attn_varlen_func # v2 등 작동하는 버전 사용
+    flash_attn_varlen_func_v3 = flash_attn_varlen_func # 맵핑
+
 
 from lightx2v.utils.registry_factory import ATTN_WEIGHT_REGISTER
 
