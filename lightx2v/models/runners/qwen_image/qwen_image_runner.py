@@ -119,11 +119,20 @@ class QwenImageRunner(DefaultRunner):
 
     @ProfilingContext4DebugL2("Run Encoders")
     def _run_input_encoder_local_i2i(self):
-        image_paths_list = self.input_info.image_path.split(",")
-        images_list = []
-        for image_path in image_paths_list:
-            _, image = self.read_image_input(image_path)
-            images_list.append(image)
+        if isinstance(self.input_info.image_path, str):
+            image_paths_list = self.input_info.image_path.split(",")
+            images_list = []
+            for image_path in image_paths_list:
+                _, image = self.read_image_input(image_path)
+                images_list.append(image)
+        elif isinstance(self.input_info.image_path, Image.Image):
+            # single PIL image passed directly
+            images_list = [self.input_info.image_path]
+        elif isinstance(self.input_info.image_path, list):
+            # list of PIL Images
+            images_list = self.input_info.image_path
+        else:
+            raise TypeError(f"Unsupported input type: {type(self.input_info.image_path)}")
 
         prompt = self.input_info.prompt
         text_encoder_output = self.run_text_encoder(prompt, images_list, neg_prompt=self.input_info.negative_prompt)
@@ -132,6 +141,7 @@ class QwenImageRunner(DefaultRunner):
         for vae_image in text_encoder_output["image_info"]["vae_image_list"]:
             image_encoder_output = self.run_vae_encoder(image=vae_image)
             image_encoder_output_list.append(image_encoder_output)
+    
         torch_device_module.empty_cache()
         gc.collect()
         return {
@@ -301,8 +311,9 @@ class QwenImageRunner(DefaultRunner):
         self.end_run()
 
         image = images[0]
-        image.save(f"{input_info.save_result_path}")
-        logger.info(f"Image saved: {input_info.save_result_path}")
+        if input_info.save_result_path != None:
+            image.save(f"{input_info.save_result_path}")
+            logger.info(f"Image saved: {input_info.save_result_path}")
 
         del latents, generator
         torch_device_module.empty_cache()
